@@ -1,21 +1,6 @@
-# Core dependencies untuk AI Robot Assistant
-
-# GUI
-# Tkinter sudah built-in dengan Python
-
-# Speech & Audio
-pyttsx3==2.90          # Text-to-Speech (offline)
-SpeechRecognition==3.10.0  # Speech-to-Text
-PyAudio==0.2.13        # Audio processing
-
-# Natural Language Processing
-nltk==3.8.1            # Natural Language Toolkit
-textblob==0.17.1       # Text processing
-
-# Utilities
-requests==2.31.0       # HTTP requests
-python-dotenv==1.0.0   # Environment variables
-
-# Optional: untuk pengembangan lebih lanjut
-# tensorflow==2.13.0   # Deep Learning (jika ingin upgrade)
-# flask==2.3.0         # Web server (jika ingin API)
+Flask==2.3.0
+SpeechRecognition==3.10.0
+pyttsx3==2.90
+requests==2.31.0
+python-dotenv==1.0.0
+flask-cors==4.0.0

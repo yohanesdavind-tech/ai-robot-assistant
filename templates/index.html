@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Robot AI Assistant - Aria</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>🤖 Aria - AI Assistant</h1>
+                <p>Robot Asisten AI Pintar Anda</p>
+            </div>
+        </header>
+        
+        <!-- Main Chat Area -->
+        <main class="chat-container">
+            <!-- Avatar Section -->
+            <div class="avatar-section">
+                <div class="avatar">
+                    <div class="avatar-circle">
+                        <span class="avatar-icon">🤖</span>
+                    </div>
+                    <h2>Aria</h2>
+                    <p class="status">● Online</p>
+                </div>
+            </div>
+            
+            <!-- Chat Messages -->
+            <div class="chat-messages" id="chatMessages">
+                <div class="message ai-message">
+                    <div class="message-content">
+                        <p>Halo! Saya Aria, asisten AI Anda. Ada yang bisa saya bantu?</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Input Area -->
+            <div class="input-area">
+                <form id="chatForm" onsubmit="sendMessage(event)">
+                    <input 
+                        type="text" 
+                        id="userInput" 
+                        placeholder="Ketik pesan Anda..."
+                        autocomplete="off"
+                    >
+                    <button type="submit" class="send-btn">➤ Kirim</button>
+                </form>
+            </div>
+        </main>
+        
+        <!-- Quick Commands -->
+        <aside class="quick-commands">
+            <h3>⚡ Perintah Cepat</h3>
+            <div class="commands-grid">
+                <button class="cmd-btn" onclick="sendPredefinedMessage('Nyalakan lampu kamar')">💡 Nyalakan Lampu</button>
+                <button class="cmd-btn" onclick="sendPredefinedMessage('Matikan semua lampu')">🔌 Matikan Lampu</button>
+                <button class="cmd-btn" onclick="sendPredefinedMessage('Jam berapa sekarang?')">🕐 Jam Sekarang</button>
+                <button class="cmd-btn" onclick="sendPredefinedMessage('Siapa nama kamu?')">👤 Siapa Kamu?</button>
+            </div>
+        </aside>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Robot AI Assistant v1.0 | Untuk Skripsi</p>
+    </footer>
+    
+    <script>
+        // Send message function
+        async function sendMessage(event) {
+            event.preventDefault();
+            
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message to chat
+            addMessageToChat('user', message);
+            userInput.value = '';
+            userInput.focus();
+            
+            try {
+                // Send to backend
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({message: message})
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Add AI response to chat
+                    addMessageToChat('ai', data.ai_response);
+                } else {
+                    addMessageToChat('ai', 'Maaf, terjadi error. Coba lagi.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                addMessageToChat('ai', 'Koneksi error. Pastikan server berjalan.');
+            }
+        }
+        
+        // Add message to chat display
+        function addMessageToChat(sender, message) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.innerHTML = `<div class="message-content"><p>${escapeHtml(message)}</p></div>`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Send predefined message
+        function sendPredefinedMessage(message) {
+            document.getElementById('userInput').value = message;
+            document.getElementById('chatForm').dispatchEvent(new Event('submit'));
+        }
+        
+        // Escape HTML untuk security
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

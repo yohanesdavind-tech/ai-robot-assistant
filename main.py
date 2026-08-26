@@ -1,58 +1,166 @@
 #!/usr/bin/env python3
-# ============================================
-# MAIN.PY - Entry Point Aplikasi
-# ============================================
-# Jalankan file ini untuk memulai aplikasi
-# Python 3.9+
-#
-# Cara menjalankan:
-# python main.py
-#
-# REQUIREMENTS:
-# pip install -r requirements.txt
+# -*- coding: utf-8 -*-
+"""
+Robot AI Assistant - Main Program
+Mirip Gatebox versi sederhana
+"""
 
-import tkinter as tk
-import sys
+from modules.nlp_processor import NLPProcessor
+from modules.text_to_speech import TextToSpeech
+import speech_recognition as sr
 import os
+from datetime import datetime
 
-# Add current directory to path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+class RobotAI:
+    def __init__(self):
+        print("\n" + "="*50)
+        print("🤖 ROBOT AI ASSISTANT - STARTING...")
+        print("="*50 + "\n")
+        
+        self.nlp = NLPProcessor()
+        self.tts = TextToSpeech()
+        self.recognizer = sr.Recognizer()
+        self.mic = sr.Microphone()
+        self.running = True
+        
+        # Welcome message
+        welcome_msg = "Halo! Saya Aria, asisten AI Anda. Siap membantu apa yang Anda butuhkan?"
+        print(f"🎤 AI: {welcome_msg}\n")
+        self.tts.speak(welcome_msg)
+    
+    def listen_voice(self):
+        """Listen input dari microphone"""
+        try:
+            with self.mic as source:
+                print("🎤 Mendengarkan...")
+                # Adjust untuk background noise
+                self.recognizer.adjust_for_ambient_noise(source, duration=1)
+                audio = self.recognizer.listen(source, timeout=5)
+            
+            # Recognize speech
+            text = self.recognizer.recognize_google(audio, language='id-ID')
+            print(f"👤 Anda: {text}\n")
+            return text
+        except sr.UnknownValueError:
+            return "Maaf, saya tidak mengerti"
+        except sr.RequestError:
+            return "Error koneksi internet"
+        except Exception as e:
+            return f"Error: {str(e)}"
+    
+    def get_text_input(self):
+        """Get input dari keyboard (untuk testing)"""
+        try:
+            user_input = input("👤 Anda: ").strip()
+            return user_input
+        except KeyboardInterrupt:
+            return "EXIT"
+    
+    def run_voice_mode(self):
+        """Mode pengenalan suara"""
+        print("\n🎙️  MODE VOICE - Gunakan microphone")
+        print("Ketik 'EXIT' untuk keluar\n")
+        
+        while self.running:
+            try:
+                # Listen dari microphone
+                user_input = self.listen_voice()
+                
+                if user_input.upper() == "EXIT":
+                    print("👋 Goodbye!")
+                    self.tts.speak("Sampai jumpa lagi!")
+                    break
+                
+                # Process dengan NLP
+                ai_response = self.nlp.process_input(user_input)
+                print(f"🤖 AI: {ai_response}\n")
+                
+                # Speak response
+                self.tts.speak(ai_response)
+                
+            except KeyboardInterrupt:
+                print("\n👋 Program dihentikan.")
+                break
+            except Exception as e:
+                print(f"❌ Error: {str(e)}\n")
+    
+    def run_text_mode(self):
+        """Mode text/keyboard (untuk testing)"""
+        print("\n⌨️  MODE TEXT - Gunakan keyboard")
+        print("Ketik 'EXIT' untuk keluar")
+        print("Ketik 'VOICE' untuk switch ke voice mode")
+        print("Ketik 'HELP' untuk list perintah\n")
+        
+        while self.running:
+            try:
+                # Get input dari keyboard
+                user_input = self.get_text_input()
+                
+                if user_input.upper() == "EXIT":
+                    print("👋 Goodbye!")
+                    break
+                
+                elif user_input.upper() == "VOICE":
+                    print("\n🔄 Switching ke VOICE MODE...")
+                    self.run_voice_mode()
+                    break
+                
+                elif user_input.upper() == "HELP":
+                    self.show_help()
+                    continue
+                
+                elif user_input == "":
+                    continue
+                
+                # Process dengan NLP
+                ai_response = self.nlp.process_input(user_input)
+                print(f"🤖 AI: {ai_response}\n")
+                
+            except KeyboardInterrupt:
+                print("\n👋 Program dihentikan.")
+                break
+            except Exception as e:
+                print(f"❌ Error: {str(e)}\n")
+    
+    def show_help(self):
+        """Tampilkan list perintah yang tersedia"""
+        help_text = """
+╔═══════════════════════════════════════════════════════════════╗
+║             📋 DAFTAR PERINTAH YANG TERSEDIA               ║
+╠═══════════════════════════════════════════════════════════════╣
+║ SMART HOME:                                                   ║
+║  • "Nyalakan lampu kamar"                                    ║
+║  • "Matikan lampu ruang tamu"                                ║
+║  • "Ganti lampu dapur"                                       ║
+║                                                              ║
+║ INFORMASI:                                                    ║
+║  • "Jam berapa sekarang?"                                    ║
+║  • "Siapa nama kamu?"                                        ║
+║  • "Halo" / "Halo Aria"                                      ║
+║                                                              ║
+║ KONTROL PROGRAM:                                             ║
+║  • "EXIT" - Keluar dari program                              ║
+║  • "VOICE" - Switch ke voice mode                            ║
+║  • "HELP" - Tampilkan perintah ini                           ║
+╚═══════════════════════════════════════════════════════════════╝
+        """
+        print(help_text)
+    
+    def run(self, mode='text'):
+        """Start robot AI"""
+        try:
+            if mode.lower() == 'voice':
+                self.run_voice_mode()
+            else:
+                self.run_text_mode()
+        except Exception as e:
+            print(f"Fatal Error: {str(e)}")
 
-from gui_interface import AIRobotGUI
-from config import APP_NAME, APP_VERSION
 
-def main():
-    """
-    Main function - Entry point aplikasi
-    """
-    print("\n" + "="*60)
-    print(f"  {APP_NAME} v{APP_VERSION}")
-    print("  AI Robot Assistant - Skripsi Project")
-    print("="*60)
-    print("\nMemulai aplikasi...\n")
+if __name__ == '__main__':
+    # Create robot instance
+    robot = RobotAI()
     
-    # Create main window
-    root = tk.Tk()
-    
-    # Create GUI
-    app = AIRobotGUI(root)
-    
-    # Welcome message
-    root.after(500, lambda: app.add_to_chat("SYSTEM", "Halo! Aku ARIA, AI Robot Assistant Anda."))
-    root.after(1000, lambda: app.add_to_chat("SYSTEM", "Kamu bisa mengetik pertanyaan atau menekan tombol 🎤 untuk berbicara."))
-    
-    # Start GUI event loop
-    root.mainloop()
-    
-    print("\nAplikasi ditutup.")
-    print("Terima kasih telah menggunakan AI Robot Assistant!\n")
-
-if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("\n\nAplikasi dihentikan oleh user.")
-    except Exception as e:
-        print(f"\n\n❌ Error: {e}")
-        print("\nSilahkan pastikan semua library sudah diinstall:")
-        print("pip install -r requirements.txt")
+    # Run dengan mode TEXT (lebih mudah untuk testing)
+    # Jika punya microphone, ubah ke 'voice'
+    robot.run(mode='text')
