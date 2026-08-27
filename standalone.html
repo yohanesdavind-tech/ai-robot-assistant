@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Aria - AI Assistant Complete</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            padding: 12px 25px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .nav-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ===== CHAT AI SECTION ===== */
+        .chat-section {
+            display: grid;
+            grid-template-columns: 150px 1fr 200px;
+            gap: 20px;
+            height: 600px;
+        }
+
+        .avatar-box {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .avatar-circle {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            margin: 0 auto 15px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .avatar-box h3 {
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .status {
+            color: #2ed573;
+            font-size: 0.9em;
+        }
+
+        .chat-box {
+            background: white;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.ai {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 80%;
+            padding: 12px 15px;
+            border-radius: 12px;
+            word-wrap: break-word;
+            font-size: 0.95em;
+        }
+
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+        }
+
+        .message.ai .message-content {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .chat-input {
+            padding: 15px;
+            border-top: 2px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .chat-input button {
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .chat-input button:hover {
+            background: #764ba2;
+        }
+
+        .quick-commands {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .quick-commands h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .cmd-btn {
+            width: 100%;
+            padding: 10px;
+            background: #f5f5f5;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .cmd-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* ===== TODO LIST SECTION ===== */
+        .todo-section {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #999;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: #667eea;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .filter-btns {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .todo-list {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            border-left: 5px solid #ddd;
+            margin-bottom: 10px;
+        }
+
+        .todo-item.priority-high {
+            border-left-color: #ff4757;
+            background: rgba(255, 71, 87, 0.05);
+        }
+
+        .todo-item.priority-medium {
+            border-left-color: #ffa502;
+        }
+
+        .todo-item.priority-low {
+            border-left-color: #2ed573;
+        }
+
+        .todo-item.completed {
+            opacity: 0.5;
+        }
+
+        .todo-item input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .todo-content {
+            flex: 1;
+        }
+
+        .todo-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .todo-item.completed .todo-title {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .todo-meta {
+            display: flex;
+            gap: 8px;
+            font-size: 0.85em;
+        }
+
+        .badge {
+            background: #e8f0ff;
+            color: #667eea;
+            padding: 4px 10px;
+            border-radius: 8px;
+        }
+
+        .btn-delete {
+            background: #fff0f0;
+            color: #ff4757;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-delete:hover {
+            background: #ff4757;
+            color: white;
+        }
+
+        /* ===== SMART HOME SECTION ===== */
+        .smart-home-section {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .device-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+
+        .device-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .device-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .device-name {
+            color: #333;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .device-status {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+        }
+
+        .toggle-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+
+        .toggle-btn.on {
+            background: #2ed573;
+            color: white;
+        }
+
+        .toggle-btn.off {
+            background: #ff4757;
+            color: white;
+        }
+
+        /* ===== WEATHER SECTION ===== */
+        .weather-section {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .weather-input {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 10px;
+        }
+
+        .weather-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .weather-input button {
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .weather-result {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .weather-result.error {
+            color: #ff4757;
+        }
+
+        .weather-temp {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .weather-desc {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .weather-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .weather-detail {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .weather-detail-label {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .weather-detail-value {
+            color: #333;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .chat-section {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .nav-tabs {
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .device-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header -->
+        <header>
+            <h1>🤖 Aria - AI Assistant</h1>
+            <p>Chat AI • Todo List • Smart Home • Weather</p>
+        </header>
+
+        <!-- Navigation -->
+        <div class="nav-tabs">
+            <button class="nav-btn active" onclick="switchTab('chat')">💬 Chat</button>
+            <button class="nav-btn" onclick="switchTab('todo')">📋 Todo List</button>
+            <button class="nav-btn" onclick="switchTab('smart-home')">💡 Smart Home</button>
+            <button class="nav-btn" onclick="switchTab('weather')">🌤️ Weather</button>
+        </div>
+
+        <!-- ===== CHAT TAB ===== -->
+        <div id="chat" class="tab-content active">
+            <div class="chat-section">
+                <!-- Avatar -->
+                <div class="avatar-box">
+                    <div class="avatar-circle">🤖</div>
+                    <h3>Aria</h3>
+                    <p class="status">● Online</p>
+                </div>
+
+                <!-- Chat -->
+                <div class="chat-box">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message ai">
+                            <div class="message-content">Halo! Saya Aria, asisten AI Anda. Ada yang bisa saya bantu?</div>
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="chatInput" placeholder="Ketik pesan Anda...">
+                        <button onclick="sendChatMessage()">Kirim</button>
+                    </div>
+                </div>
+
+                <!-- Quick Commands -->
+                <div class="quick-commands">
+                    <h3>⚡ Perintah Cepat</h3>
+                    <button class="cmd-btn" onclick="sendPredefinedMessage('Nyalakan lampu kamar')">💡 Nyalakan Lampu</button>
+                    <button class="cmd-btn" onclick="sendPredefinedMessage('Matikan semua lampu')">🌑 Matikan Lampu</button>
+                    <button class="cmd-btn" onclick="sendPredefinedMessage('Jam berapa?')">⏰ Jam Berapa</button>
+                    <button class="cmd-btn" onclick="sendPredefinedMessage('Lihat todo')">📌 Lihat Todo</button>
+                    <button class="cmd-btn" onclick="sendPredefinedMessage('Berapa statistik?')">📊 Statistik</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TODO TAB ===== -->
+        <div id="todo" class="tab-content">
+            <div class="todo-section">
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-label">Total</div>
+                        <div class="stat-value" id="statTotal">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-label">Selesai</div>
+                        <div class="stat-value" id="statCompleted">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-label">Pending</div>
+                        <div class="stat-value" id="statPending">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔴</div>
+                        <div class="stat-label">High Priority</div>
+                        <div class="stat-value" id="statHighPriority">0</div>
+                    </div>
+                </div>
+
+                <!-- Add Todo Form -->
+                <div class="form-section">
+                    <h2>➕ Tambah Todo Baru</h2>
+                    <form onsubmit="addTodo(event)">
+                        <div class="form-group">
+                            <input type="text" id="todoTitle" placeholder="Apa yang perlu dikerjakan?" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <select id="todoPriority">
+                                    <option value="low">🟢 Low Priority</option>
+                                    <option value="medium" selected>🟡 Medium Priority</option>
+                                    <option value="high">🔴 High Priority</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <select id="todoCategory">
+                                    <option value="general">General</option>
+                                    <option value="pekerjaan">Pekerjaan</option>
+                                    <option value="belajar">Belajar</option>
+                                    <option value="belanja">Belanja</option>
+                                    <option value="kesehatan">Kesehatan</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <input type="date" id="todoDueDate">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <textarea id="todoDescription" placeholder="Deskripsi (optional)" rows="2"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary">➕ Tambah Todo</button>
+                    </form>
+                </div>
+
+                <!-- Filter -->
+                <div class="filter-btns">
+                    <button class="filter-btn active" onclick="filterTodos('all')">Semua</button>
+                    <button class="filter-btn" onclick="filterTodos('pending')">Pending</button>
+                    <button class="filter-btn" onclick="filterTodos('completed')">Selesai</button>
+                    <button class="filter-btn" onclick="filterTodos('high')">🔴 High Priority</button>
+                </div>
+
+                <!-- Todo List -->
+                <div class="todo-list">
+                    <div id="todoList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SMART HOME TAB ===== -->
+        <div id="smart-home" class="tab-content">
+            <div class="smart-home-section">
+                <div class="device-grid" id="deviceGrid"></div>
+            </div>
+        </div>
+
+        <!-- ===== WEATHER TAB ===== -->
+        <div id="weather" class="tab-content">
+            <div class="weather-section">
+                <div class="weather-input">
+                    <input type="text" id="weatherCity" placeholder="Masukkan nama kota..." value="Jakarta">
+                    <button onclick="searchWeather()">Cari</button>
+                </div>
+                <div id="weatherResult" class="weather-result">
+                    <p class="empty-state">Masukkan nama kota untuk melihat cuaca</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== TAB SWITCHING =====
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // ===== LOCAL STORAGE =====
+        const storage = {
+            getTodos: () => JSON.parse(localStorage.getItem('todos') || '[]'),
+            saveTodos: (todos) => localStorage.setItem('todos', JSON.stringify(todos)),
+            getChatHistory: () => JSON.parse(localStorage.getItem('chatHistory') || '[]'),
+            saveChatHistory: (history) => localStorage.setItem('chatHistory', JSON.stringify(history)),
+            getDevices: () => JSON.parse(localStorage.getItem('devices') || '{}'),
+            saveDevices: (devices) => localStorage.setItem('devices', JSON.stringify(devices))
+        };
+
+        // ===== CHAT AI LOGIC =====
+        const aiResponses = {
+            'halo': 'Halo! Saya adalah Aria, asisten AI Anda. Ada yang bisa saya bantu?',
+            'siapa nama kamu': 'Nama saya adalah Aria, asisten pintar Anda.',
+            'jam berapa': 'Waktu sekarang adalah ' + new Date().toLocaleTimeString('id-ID'),
+            'siapa kamu': 'Saya Aria, asisten AI yang siap membantu Anda dengan chat, todo list, smart home, dan informasi cuaca.',
+            'nyalakan lampu kamar': 'Lampu kamar sudah dinyalakan ✅',
+            'matikan lampu': 'Semua lampu sudah dimatikan ✅',
+            'lihat todo': `Anda punya ${storage.getTodos().length} todo`,
+            'berapa statistik': `Total: ${storage.getTodos().length}, Selesai: ${storage.getTodos().filter(t => t.completed).length}, Pending: ${storage.getTodos().filter(t => !t.completed).length}`,
+            'default': 'Maaf, saya tidak mengerti perintah tersebut. Coba perintah lain seperti "halo", "jam berapa", atau "lihat todo".'
+        };
+
+        function getAIResponse(text) {
+            text = text.toLowerCase();
+            for (const [key, response] of Object.entries(aiResponses)) {
+                if (text.includes(key)) {
+                    return response;
+                }
+            }
+            return aiResponses['default'];
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Add user message
+            addChatMessage('user', message);
+            input.value = '';
+
+            // Get AI response
+            setTimeout(() => {
+                const response = getAIResponse(message);
+                addChatMessage('ai', response);
+            }, 300);
+        }
+
+        function sendPredefinedMessage(message) {
+            document.getElementById('chatInput').value = message;
+            sendChatMessage();
+        }
+
+        function addChatMessage(sender, text) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = `<div class="message-content">${escapeHtml(text)}</div>`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // ===== TODO LIST LOGIC =====
+        function addTodo(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('todoTitle').value;
+            const priority = document.getElementById('todoPriority').value;
+            const category = document.getElementById('todoCategory').value;
+            const description = document.getElementById('todoDescription').value;
+            const dueDate = document.getElementById('todoDueDate').value;
+
+            const todos = storage.getTodos();
+            const newTodo = {
+                id: Date.now(),
+                title,
+                priority,
+                category,
+                description,
+                dueDate,
+                completed: false,
+                created: new Date().toLocaleString('id-ID')
+            };
+
+            todos.push(newTodo);
+            storage.saveTodos(todos);
+
+            // Clear form
+            document.getElementById('todoTitle').value = '';
+            document.getElementById('todoDescription').value = '';
+            document.getElementById('todoDueDate').value = '';
+
+            updateTodoUI();
+        }
+
+        function completeTodo(id) {
+            const todos = storage.getTodos();
+            const todo = todos.find(t => t.id === id);
+            if (todo) {
+                todo.completed = !todo.completed;
+                storage.saveTodos(todos);
+                updateTodoUI();
+            }
+        }
+
+        function deleteTodo(id) {
+            const todos = storage.getTodos().filter(t => t.id !== id);
+            storage.saveTodos(todos);
+            updateTodoUI();
+        }
+
+        function filterTodos(filter) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            updateTodoUI(filter);
+        }
+
+        function updateTodoUI(filter = 'all') {
+            const todos = storage.getTodos();
+            const todoList = document.getElementById('todoList');
+
+            let filtered = todos;
+            if (filter === 'pending') filtered = todos.filter(t => !t.completed);
+            else if (filter === 'completed') filtered = todos.filter(t => t.completed);
+            else if (filter === 'high') filtered = todos.filter(t => t.priority === 'high');
+
+            // Update stats
+            document.getElementById('statTotal').textContent = todos.length;
+            document.getElementById('statCompleted').textContent = todos.filter(t => t.completed).length;
+            document.getElementById('statPending').textContent = todos.filter(t => !t.completed).length;
+            document.getElementById('statHighPriority').textContent = todos.filter(t => t.priority === 'high').length;
+
+            // Render todos
+            if (filtered.length === 0) {
+                todoList.innerHTML = '<p class="empty-state">Tidak ada todo 🎉</p>';
+                return;
+            }
+
+            todoList.innerHTML = filtered.map(todo => `
+                <div class="todo-item ${todo.completed ? 'completed' : ''} priority-${todo.priority}">
+                    <input type="checkbox" ${todo.completed ? 'checked' : ''} onchange="completeTodo(${todo.id})">
+                    <div class="todo-content">
+                        <div class="todo-title">${escapeHtml(todo.title)}</div>
+                        ${todo.description ? `<div>${escapeHtml(todo.description)}</div>` : ''}
+                        <div class="todo-meta">
+                            <span class="badge">${todo.category}</span>
+                            <span class="badge">${todo.priority}</span>
+                            ${todo.dueDate ? `<span class="badge">📅 ${todo.dueDate}</span>` : ''}
+                        </div>
+                    </div>
+                    <button class="btn-delete" onclick="deleteTodo(${todo.id})">🗑️</button>
+                </div>
+            `).join('');
+        }
+
+        // ===== SMART HOME LOGIC =====
+        function initSmartHome() {
+            const devices = [
+                { id: 'lampu_kamar', name: 'Lampu Kamar', icon: '💡', state: false },
+                { id: 'lampu_ruang_tamu', name: 'Lampu Ruang Tamu', icon: '💡', state: false },
+                { id: 'lampu_dapur', name: 'Lampu Dapur', icon: '💡', state: false },
+                { id: 'ac_kamar', name: 'AC Kamar', icon: '❄️', state: false },
+                { id: 'tv', name: 'Televisi', icon: '📺', state: false },
+                { id: 'pintu', name: 'Pintu Rumah', icon: '🚪', state: false }
+            ];
+
+            const savedDevices = storage.getDevices();
+            devices.forEach(device => {
+                if (savedDevices[device.id]) {
+                    device.state = savedDevices[device.id];
+                }
+            });
+
+            const grid = document.getElementById('deviceGrid');
+            grid.innerHTML = devices.map(device => `
+                <div class="device-card">
+                    <div class="device-icon">${device.icon}</div>
+                    <div class="device-name">${device.name}</div>
+                    <div class="device-status">${device.state ? '✅ ON' : '❌ OFF'}</div>
+                    <button class="toggle-btn ${device.state ? 'on' : 'off'}" onclick="toggleDevice('${device.id}')">
+                        ${device.state ? 'Matikan' : 'Nyalakan'}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function toggleDevice(deviceId) {
+            const devices = storage.getDevices();
+            devices[deviceId] = !devices[deviceId];
+            storage.saveDevices(devices);
+            initSmartHome();
+        }
+
+        // ===== WEATHER LOGIC =====
+        async function searchWeather() {
+            const city = document.getElementById('weatherCity').value || 'Jakarta';
+            const result = document.getElementById('weatherResult');
+
+            result.innerHTML = '⏳ Mencari cuaca...';
+
+            try {
+                // Menggunakan Open-Meteo API (gratis, tidak perlu API key)
+                const geocoding = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1&language=id&format=json`);
+                const geoData = await geocoding.json();
+
+                if (!geoData.results || geoData.results.length === 0) {
+                    result.innerHTML = '<p class="error">❌ Kota tidak ditemukan</p>';
+                    return;
+                }
+
+                const { latitude, longitude, name, country } = geoData.results[0];
+
+                const weather = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto`);
+                const weatherData = await weather.json();
+                const current = weatherData.current;
+
+                const temp = Math.round(current.temperature_2m);
+                const humidity = current.relative_humidity_2m;
+                const wind = current.wind_speed_10m;
+                const desc = getWeatherDescription(current.weather_code);
+
+                result.innerHTML = `
+                    <h2>${name}, ${country}</h2>
+                    <div class="weather-temp">${temp}°C</div>
+                    <div class="weather-desc">${desc}</div>
+                    <div class="weather-details">
+                        <div class="weather-detail">
+                            <div class="weather-detail-label">Kelembaban</div>
+                            <div class="weather-detail-value">${humidity}%</div>
+                        </div>
+                        <div class="weather-detail">
+                            <div class="weather-detail-label">Kecepatan Angin</div>
+                            <div class="weather-detail-value">${wind.toFixed(1)} km/h</div>
+                        </div>
+                        <div class="weather-detail">
+                            <div class="weather-detail-label">Update</div>
+                            <div class="weather-detail-value">${new Date().toLocaleTimeString('id-ID')}</div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                result.innerHTML = '<p class="error">❌ Error mengambil data cuaca. Periksa koneksi internet.</p>';
+                console.error(error);
+            }
+        }
+
+        function getWeatherDescription(code) {
+            const descriptions = {
+                0: '☀️ Cerah',
+                1: '🌤️ Cerah Sebagian',
+                2: '⛅ Berawan',
+                3: '☁️ Mendung',
+                45: '🌫️ Berkabut',
+                48: '🌫️ Berkabut',
+                51: '🌧️ Gerimis Ringan',
+                53: '🌧️ Gerimis',
+                55: '🌧️ Gerimis Lebat',
+                61: '🌧️ Hujan Ringan',
+                63: '🌧️ Hujan',
+                65: '⛈️ Hujan Lebat',
+                80: '🌧️ Hujan Ringan',
+                81: '🌧️ Hujan',
+                82: '⛈️ Hujan Lebat',
+                85: '❄️ Salju Ringan',
+                86: '❄️ Salju Lebat',
+                95: '⛈️ Badai Guntur',
+                96: '⛈️ Badai Guntur Berat',
+                99: '⛈️ Badai Guntur Berat'
+            };
+            return descriptions[code] || '❓ Tidak Diketahui';
+        }
+
+        // ===== UTILITY =====
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ===== INIT =====
+        document.addEventListener('DOMContentLoaded', () => {
+            updateTodoUI();
+            initSmartHome();
+            
+            // Enter key untuk chat
+            document.getElementById('chatInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendChatMessage();
+            });
+
+            // Enter key untuk weather
+            document.getElementById('weatherCity').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') searchWeather();
+            });
+        });
+    </script>
+</body>
+</html>
