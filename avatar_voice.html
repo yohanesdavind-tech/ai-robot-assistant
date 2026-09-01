@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Aria - AI Assistant dengan Voice & Avatar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            padding: 12px 25px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .nav-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Chat Section */
+        .chat-section {
+            display: grid;
+            grid-template-columns: 200px 1fr 220px;
+            gap: 20px;
+            height: 650px;
+        }
+
+        /* Avatar Box */
+        .avatar-box {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        #avatarCanvas {
+            width: 180px;
+            height: 180px;
+            margin: 10px auto;
+        }
+
+        .avatar-info {
+            margin-top: 10px;
+        }
+
+        .avatar-info h3 {
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .status {
+            color: #2ed573;
+            font-size: 0.9em;
+        }
+
+        /* Chat Box */
+        .chat-box {
+            background: white;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 15px;
+            border-radius: 12px;
+            word-wrap: break-word;
+            font-size: 0.95em;
+        }
+
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+        }
+
+        .message.ai .message-content {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .message-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+        }
+
+        .chat-input {
+            padding: 15px;
+            border-top: 2px solid #eee;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .chat-input input {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .chat-input button {
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .chat-input button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        /* Control Panel */
+        .control-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-panel h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+
+        .control-btn {
+            width: 100%;
+            padding: 10px;
+            background: #f5f5f5;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .control-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .control-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .cmd-btn {
+            width: 100%;
+            padding: 8px;
+            background: #f5f5f5;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 6px;
+            font-size: 0.85em;
+            transition: all 0.3s;
+        }
+
+        .cmd-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* Todo Section */
+        .todo-section {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #999;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: #667eea;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .filter-btns {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .todo-list {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            border-left: 5px solid #ddd;
+            margin-bottom: 10px;
+        }
+
+        .todo-item.priority-high {
+            border-left-color: #ff4757;
+            background: rgba(255, 71, 87, 0.05);
+        }
+
+        .todo-item.priority-medium {
+            border-left-color: #ffa502;
+        }
+
+        .todo-item.priority-low {
+            border-left-color: #2ed573;
+        }
+
+        .todo-item.completed {
+            opacity: 0.5;
+        }
+
+        .todo-item input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .todo-content {
+            flex: 1;
+        }
+
+        .todo-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .todo-item.completed .todo-title {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .todo-meta {
+            display: flex;
+            gap: 8px;
+            font-size: 0.85em;
+        }
+
+        .badge {
+            background: #e8f0ff;
+            color: #667eea;
+            padding: 4px 10px;
+            border-radius: 8px;
+        }
+
+        .btn-delete {
+            background: #fff0f0;
+            color: #ff4757;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-delete:hover {
+            background: #ff4757;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .chat-section {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .chat-section {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🤖 Aria - AI Assistant</h1>
+            <p>Chat dengan Avatar Interaktif & Suara Perempuan Natural</p>
+        </header>
+
+        <!-- Navigation -->
+        <div class="nav-tabs">
+            <button class="nav-btn active" onclick="switchTab('chat')">💬 Chat</button>
+            <button class="nav-btn" onclick="switchTab('todo')">📋 Todo List</button>
+        </div>
+
+        <!-- Chat Tab -->
+        <div id="chat" class="tab-content active">
+            <div class="chat-section">
+                <!-- Avatar -->
+                <div class="avatar-box">
+                    <canvas id="avatarCanvas"></canvas>
+                    <div class="avatar-info">
+                        <h3>Aria</h3>
+                        <p class="status">● Online</p>
+                    </div>
+                </div>
+
+                <!-- Chat -->
+                <div class="chat-box">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message ai">
+                            <div class="message-avatar">A</div>
+                            <div class="message-content">Halo! Saya Aria, asisten AI Anda. Ada yang bisa saya bantu?</div>
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="chatInput" placeholder="Ketik pesan Anda...">
+                        <button onclick="sendMessage()">Kirim</button>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="control-panel">
+                    <h3>⚙️ Kontrol</h3>
+
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>🔊 Volume</span>
+                            <span id="volumeValue">100%</span>
+                        </div>
+                        <input type="range" id="volumeSlider" min="0" max="100" value="100" 
+                               oninput="updateVolume(this.value)">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>⏱️ Kecepatan</span>
+                            <span id="speedValue">1x</span>
+                        </div>
+                        <input type="range" id="speedSlider" min="0.5" max="2" step="0.5" value="1" 
+                               oninput="updateSpeed(this.value)">
+                    </div>
+
+                    <button class="control-btn" id="muteBtn" onclick="toggleMute()">🔊 Unmute</button>
+
+                    <hr style="margin: 15px 0; border: none; border-top: 1px solid #ddd;">
+
+                    <h3 style="font-size: 0.95em; margin-bottom: 10px;">⚡ Perintah Cepat</h3>
+                    <button class="cmd-btn" onclick="sendPredefinedMessage('Halo Aria')">Halo</button>
+                    <button class="cmd-btn" onclick="sendPredefinedMessage('Siapa nama kamu?')">Siapa?</button>
+                    <button class="cmd-btn" onclick="sendPredefinedMessage('Jam berapa?')">Jam?</button>
+                    <button class="cmd-btn" onclick="sendPredefinedMessage('Lihat todo')">Todo</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Todo Tab -->
+        <div id="todo" class="tab-content">
+            <div class="todo-section">
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-label">Total</div>
+                        <div class="stat-value" id="statTotal">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-label">Selesai</div>
+                        <div class="stat-value" id="statCompleted">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-label">Pending</div>
+                        <div class="stat-value" id="statPending">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔴</div>
+                        <div class="stat-label">High Priority</div>
+                        <div class="stat-value" id="statHighPriority">0</div>
+                    </div>
+                </div>
+
+                <!-- Add Todo -->
+                <div class="form-section">
+                    <h2>➕ Tambah Todo Baru</h2>
+                    <form onsubmit="addTodo(event)">
+                        <div class="form-group">
+                            <input type="text" id="todoTitle" placeholder="Apa yang perlu dikerjakan?" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <select id="todoPriority">
+                                    <option value="low">🟢 Low Priority</option>
+                                    <option value="medium" selected>🟡 Medium Priority</option>
+                                    <option value="high">🔴 High Priority</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <select id="todoCategory">
+                                    <option value="general">General</option>
+                                    <option value="pekerjaan">Pekerjaan</option>
+                                    <option value="belajar">Belajar</option>
+                                    <option value="belanja">Belanja</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <input type="date" id="todoDueDate">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary">➕ Tambah</button>
+                    </form>
+                </div>
+
+                <!-- Filter -->
+                <div class="filter-btns">
+                    <button class="filter-btn active" onclick="filterTodos('all')">Semua</button>
+                    <button class="filter-btn" onclick="filterTodos('pending')">Pending</button>
+                    <button class="filter-btn" onclick="filterTodos('completed')">Selesai</button>
+                    <button class="filter-btn" onclick="filterTodos('high')">High Priority</button>
+                </div>
+
+                <!-- Todo List -->
+                <div class="todo-list">
+                    <div id="todoList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== AVATAR DRAWING =====
+        const canvas = document.getElementById('avatarCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let avatarState = 'neutral';
+        let eyeBlinkFrame = 0;
+        let mouthFrame = 0;
+
+        function drawAvatar() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            // Glow
+            const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, 100);
+            gradient.addColorStop(0, 'rgba(102, 126, 234, 0.2)');
+            gradient.addColorStop(1, 'rgba(102, 126, 234, 0)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Head
+            ctx.fillStyle = '#FDB4B4';
+            ctx.beginPath();
+            ctx.arc(cx, cy - 10, 50, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Hair
+            ctx.fillStyle = '#8B4513';
+            ctx.beginPath();
+            ctx.arc(cx, cy - 40, 50, 0, Math.PI, true);
+            ctx.fill();
+
+            drawEyes();
+            drawMouth();
+
+            if (avatarState === 'thinking') {
+                drawThinkingPose();
+            } else if (avatarState === 'listening') {
+                drawListeningPose();
+            } else if (avatarState === 'happy') {
+                drawHappyPose();
+            } else if (avatarState === 'confused') {
+                drawConfusedPose();
+            }
+
+            eyeBlinkFrame++;
+            mouthFrame++;
+        }
+
+        function drawEyes() {
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            const blinkCycle = Math.floor(eyeBlinkFrame / 30) % 40;
+            const blinkAmount = blinkCycle < 3 ? (3 - blinkCycle) * 15 : 0;
+
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.ellipse(cx - 15, cy - 15, 8, 12 - blinkAmount, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.ellipse(cx + 15, cy - 15, 8, 12 - blinkAmount, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(cx - 15, cy - 15, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(cx + 15, cy - 15, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(cx - 13, cy - 17, 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(cx + 17, cy - 17, 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawMouth() {
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const mouthY = cy + 20;
+
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+
+            if (avatarState === 'talking') {
+                const openAmount = Math.sin(mouthFrame * 0.15) * 3 + 5;
+                ctx.beginPath();
+                ctx.ellipse(cx, mouthY, 15, openAmount, 0, 0, Math.PI);
+                ctx.stroke();
+                
+                ctx.fillStyle = '#E08080';
+                ctx.beginPath();
+                ctx.ellipse(cx, mouthY + openAmount - 2, 8, 3, 0, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (avatarState === 'happy') {
+                ctx.beginPath();
+                ctx.arc(cx, mouthY, 15, 0, Math.PI);
+                ctx.stroke();
+            } else if (avatarState === 'confused') {
+                ctx.beginPath();
+                ctx.arc(cx, mouthY + 5, 15, Math.PI, 0);
+                ctx.stroke();
+            } else {
+                ctx.beginPath();
+                ctx.moveTo(cx - 12, mouthY);
+                ctx.lineTo(cx + 12, mouthY);
+                ctx.stroke();
+            }
+        }
+
+        function drawThinkingPose() {
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const rotation = (eyeBlinkFrame * 0.1) % (Math.PI * 2);
+            
+            for (let i = 0; i < 3; i++) {
+                const angle = rotation + (i * Math.PI * 2 / 3);
+                const x = cx + Math.cos(angle) * 40;
+                const y = cy - 70 + Math.sin(angle) * 10;
+                
+                ctx.fillStyle = `rgba(102, 126, 234, ${0.7 - i * 0.2})`;
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(cx + 50, cy - 50, 8, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        function drawListeningPose() {
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 1.5;
+            
+            for (let i = 1; i <= 3; i++) {
+                const waveSize = eyeBlinkFrame * 0.05 + i * 3;
+                ctx.beginPath();
+                ctx.arc(cx - 60, cy, waveSize, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+
+        function drawHappyPose() {
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            ctx.fillStyle = 'rgba(255, 192, 203, 0.5)';
+            ctx.beginPath();
+            ctx.ellipse(cx - 35, cy - 5, 12, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.ellipse(cx + 35, cy - 5, 12, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#FFD700';
+            for (let i = 0; i < 2; i++) {
+                const sparkleX = cx - 40 + i * 80;
+                const sparkleY = cy - 45;
+                ctx.beginPath();
+                ctx.arc(sparkleX, sparkleY, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawConfusedPose() {
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+
+            ctx.beginPath();
+            ctx.arc(cx - 15, cy - 30, 10, Math.PI, 0);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(cx + 15, cy - 30, 10, Math.PI, 0);
+            ctx.stroke();
+
+            ctx.fillStyle = '#667eea';
+            ctx.font = 'bold 20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('?', cx + 45, cy - 40);
+        }
+
+        function setAvatarState(state) {
+            avatarState = state;
+            drawAvatar();
+        }
+
+        // ===== VOICE =====
+        let isMuted = false;
+        let currentVolume = 1.0;
+        let currentRate = 1.0;
+
+        function speak(text) {
+            if (isMuted) return;
+
+            window.speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'id-ID';
+            utterance.rate = currentRate;
+            utterance.volume = currentVolume;
+
+            const voices = window.speechSynthesis.getVoices();
+            const femaleVoice = voices.find(voice => 
+                voice.name.includes('female') || 
+                voice.name.includes('woman') ||
+                voice.name.includes('Microsoft Zira')
+            ) || voices[1];
+
+            if (femaleVoice) {
+                utterance.voice = femaleVoice;
+            }
+
+            utterance.onstart = () => setAvatarState('talking');
+            utterance.onend = () => setAvatarState('neutral');
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function updateVolume(value) {
+            currentVolume = value / 100;
+            document.getElementById('volumeValue').textContent = value + '%';
+        }
+
+        function updateSpeed(value) {
+            currentRate = parseFloat(value);
+            document.getElementById('speedValue').textContent = value + 'x';
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            const btn = document.getElementById('muteBtn');
+            btn.textContent = isMuted ? '🔇 Mute' : '🔊 Unmute';
+            btn.classList.toggle('active');
+            window.speechSynthesis.cancel();
+        }
+
+        // ===== CHAT =====
+        const aiResponses = {
+            'halo': 'Halo! Saya Aria, senang bertemu Anda! 😊',
+            'siapa nama kamu': 'Nama saya adalah Aria, asisten AI Anda yang siap membantu 24/7.',
+            'siapa kamu': 'Saya Aria, asisten AI yang dapat membantu Anda dengan chat, todo list, dan berbagai tugas lainnya.',
+            'jam berapa': 'Waktu sekarang adalah ' + new Date().toLocaleTimeString('id-ID'),
+            'lihat todo': 'Saya akan menunjukkan todo list Anda di tab Todo List.',
+            'apa kabar': 'Saya baik-baik saja! Bagaimana dengan Anda?',
+            'terima kasih': 'Sama-sama! Senang bisa membantu Anda.',
+            'default': 'Maaf, saya tidak terlalu mengerti. Coba "Halo", "Jam berapa", atau "Lihat todo".'
+        };
+
+        function getAIResponse(text) {
+            text = text.toLowerCase();
+            for (const [key, response] of Object.entries(aiResponses)) {
+                if (text.includes(key)) {
+                    return response;
+                }
+            }
+            return aiResponses['default'];
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addChatMessage('user', message);
+            input.value = '';
+
+            setAvatarState('thinking');
+
+            setTimeout(() => {
+                const response = getAIResponse(message);
+                addChatMessage('ai', response);
+                speak(response);
+            }, 1500);
+        }
+
+        function sendPredefinedMessage(message) {
+            document.getElementById('chatInput').value = message;
+            sendMessage();
+        }
+
+        function addChatMessage(sender, text) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const content = document.createElement('div');
+            content.className = 'message-content';
+            content.textContent = text;
+
+            if (sender === 'ai') {
+                const avatar = document.createElement('div');
+                avatar.className = 'message-avatar';
+                avatar.textContent = 'A';
+                messageDiv.appendChild(avatar);
+            }
+
+            messageDiv.appendChild(content);
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // ===== TABS =====
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // ===== TODO =====
+        const storage = {
+            getTodos: () => JSON.parse(localStorage.getItem('todos') || '[]'),
+            saveTodos: (todos) => localStorage.setItem('todos', JSON.stringify(todos)),
+        };
+
+        function addTodo(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('todoTitle').value;
+            const priority = document.getElementById('todoPriority').value;
+            const category = document.getElementById('todoCategory').value;
+            const dueDate = document.getElementById('todoDueDate').value;
+
+            const todos = storage.getTodos();
+            const newTodo = {
+                id: Date.now(),
+                title,
+                priority,
+                category,
+                dueDate,
+                completed: false
+            };
+
+            todos.push(newTodo);
+            storage.saveTodos(todos);
+
+            document.getElementById('todoTitle').value = '';
+            document.getElementById('todoDueDate').value = '';
+
+            updateTodoUI();
+        }
+
+        function completeTodo(id) {
+            const todos = storage.getTodos();
+            const todo = todos.find(t => t.id === id);
+            if (todo) {
+                todo.completed = !todo.completed;
+                storage.saveTodos(todos);
+                updateTodoUI();
+            }
+        }
+
+        function deleteTodo(id) {
+            const todos = storage.getTodos().filter(t => t.id !== id);
+            storage.saveTodos(todos);
+            updateTodoUI();
+        }
+
+        function filterTodos(filter) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            updateTodoUI(filter);
+        }
+
+        function updateTodoUI(filter = 'all') {
+            const todos = storage.getTodos();
+            const todoList = document.getElementById('todoList');
+
+            let filtered = todos;
+            if (filter === 'pending') filtered = todos.filter(t => !t.completed);
+            else if (filter === 'completed') filtered = todos.filter(t => t.completed);
+            else if (filter === 'high') filtered = todos.filter(t => t.priority === 'high');
+
+            document.getElementById('statTotal').textContent = todos.length;
+            document.getElementById('statCompleted').textContent = todos.filter(t => t.completed).length;
+            document.getElementById('statPending').textContent = todos.filter(t => !t.completed).length;
+            document.getElementById('statHighPriority').textContent = todos.filter(t => t.priority === 'high').length;
+
+            if (filtered.length === 0) {
+                todoList.innerHTML = '<p class="empty-state">Tidak ada todo 🎉</p>';
+                return;
+            }
+
+            todoList.innerHTML = filtered.map(todo => `
+                <div class="todo-item ${todo.completed ? 'completed' : ''} priority-${todo.priority}">
+                    <input type="checkbox" ${todo.completed ? 'checked' : ''} onchange="completeTodo(${todo.id})">
+                    <div class="todo-content">
+                        <div class="todo-title">${escapeHtml(todo.title)}</div>
+                        <div class="todo-meta">
+                            <span class="badge">${todo.category}</span>
+                            <span class="badge">${todo.priority}</span>
+                            ${todo.dueDate ? `<span class="badge">📅 ${todo.dueDate}</span>` : ''}
+                        </div>
+                    </div>
+                    <button class="btn-delete" onclick="deleteTodo(${todo.id})">🗑️</button>
+                </div>
+            `).join('');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ===== INIT =====
+        document.addEventListener('DOMContentLoaded', () => {
+            canvas.width = 180;
+            canvas.height = 180;
+
+            drawAvatar();
+
+            setInterval(() => {
+                drawAvatar();
+            }, 50);
+
+            updateTodoUI();
+
+            document.getElementById('chatInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+
+            window.speechSynthesis.onvoiceschanged = () => {
+                window.speechSynthesis.getVoices();
+            };
+        });
+    </script>
+</body>
+</html>
